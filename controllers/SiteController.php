@@ -11,6 +11,7 @@ use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\search\UserSearch;
 use app\functions\MyFunction;
+use app\models\RegistrationForm;
 
 class SiteController extends Controller
 {
@@ -91,6 +92,17 @@ class SiteController extends Controller
         return $this->render('login', [
             'model' => $model,
         ]);
+    }
+
+    public function actionSignUp () {
+
+        $model = new RegistrationForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->registration()) {
+            return $this->redirect('login');
+        }
+
+        return $this->render('sign-up', compact('model'));
     }
 
     /**

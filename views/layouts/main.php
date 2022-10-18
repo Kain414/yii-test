@@ -25,6 +25,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => '@w
 <head>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
 </head>
 <body class="d-flex flex-column h-100">
 <?php $this->beginBody() ?>
@@ -34,8 +35,9 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => '@w
     NavBar::begin([
         'brandLabel' => Yii::$app->name,
         'brandUrl' => Yii::$app->homeUrl,
-        'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark fixed-top']
+        'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark fixed-top'],
     ]);
+
     $items = [
         ['label' => 'Home', 'url' => ['/site/index']],
         ['label' => 'About', 'url' => ['/site/about']],
@@ -43,6 +45,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => '@w
     ];
     if (Yii::$app->user->isGuest) {
         $items = array_merge($items,[['label' => 'Login', 'url' => ['/site/login']]]);
+        $items = array_merge($items,[['label' => 'Sign up', 'url' => ['/site/sign-up']]]);
     } else {
         $logout =
            '<li class="nav-item">'
@@ -53,10 +56,17 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => '@w
             )
             . Html::endForm()
             . '</li>';
+            
         $items = array_merge($items, [$logout]);
         if (Yii::$app->user->identity->status == 1) {
             $items = array_merge($items,[['label' => 'Админка', 'url' => ['/admin/admin']]]);
         }
+        
+        // $cabinet =
+        //     '<li class="nav-item" style="float:right">'
+        //     . Html::a(Html::button('Кабинет', ['class' => 'btn btn-secondary']), '/site/cabinet')
+        //     . '</li>';
+        // $items = array_merge($items, [$cabinet]);
     }
     // var_dump($items);
     // die;
@@ -64,8 +74,16 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => '@w
         'options' => ['class' => 'navbar-nav'],
         'items' => $items,
     ]);
-    NavBar::end();
+    
     ?>
+    <div class="row" style="">
+    <li class="nav-item" style="float:right"> 
+    <?= Html::a(Html::button('Кабинет', ['class' => 'btn btn-secondary']), '/site/cabinet') ?>
+    </li>
+    </div>
+
+    <?php NavBar::end();?>
+
 </header>
 
 <main id="main" class="flex-shrink-0" role="main">

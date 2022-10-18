@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+
 use yii\db\ActiveRecord;
 
 class Log extends ActiveRecord {
