@@ -2,14 +2,17 @@
 
 namespace app\controllers\admin;
 
-use yii\web\Controller;
-use app\models\search\LogSearch;
-use app\models\entry\LogEntry;
-use app\models\Log;
-use app\models\search\UserSearch;
 use Yii;
-use yii\filters\AccessControl;
+use app\models\Log;
+use app\models\Blog;
 use app\models\User;
+use yii\web\Controller;
+use yii\web\UploadedFile;
+use app\models\entry\LogEntry;
+use yii\filters\AccessControl;
+use app\models\search\LogSearch;
+use app\models\search\BlogSearch;
+use app\models\search\UserSearch;
 
 class AdminController extends Controller {
 
@@ -186,4 +189,77 @@ class AdminController extends Controller {
 			return $this->render('log-add', ['model' => $model2]);
 		}
 	}
+
+    public function actionBlogs () {
+
+        if (Yii::$app->request->post('delete_ids')) {
+            //var_dump(Yii::$app->request->post('delete_ids'));
+            $arr = 	Yii::$app->request->post('delete_ids');
+        	Blog::deleteAll(['id' => $arr]);
+            return $this->refresh();
+        }
+        
+		$searchModel = new BlogSearch();
+
+		$dataProvider = $searchModel->search(Yii::$app->request->get());
+		return $this->render('blogs', compact('dataProvider','searchModel'));
+    }
+
+    public function actionBlogsAdd () {
+
+        $post = Yii::$app->request->post();
+
+        $model = new Blog();
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            $model->file = UploadedFile::getInstance($model, 'file');
+            if ($model->validate()) {
+                $model->upload();
+            }
+            $model->author = Yii::$app->user->id;
+            $model->status = 1;
+			$model->save();
+            Yii::$app->session->setFlash('success', 'true');
+            if (Yii::$app->request->post('save-and-close') === null) {
+                return $this->redirect(["blogs-update", 'id' => $model->id]);
+            } else {
+                Yii::$app->session->removeAllFlashes();
+                return $this->redirect(["blogs"]);
+            }
+        }
+
+        return $this->render('blogs-add', compact('model'));
+    }
+
+    public function actionBlogsUpdate ($id) {
+        
+        $model = Blog::findOne(['id' => $id]);
+
+        $post = Yii::$app->request->post();
+
+        if ($post != null) {
+            $model->file = UploadedFile::getInstance($model, 'file');
+            if ($model->validate()) {
+                $model->upload();
+            }
+            if ($model->load($post) && $model->save()) {
+            	Yii::$app->session->setFlash('save', true);
+                if (Yii::$app->request->post('save-and-close') === null) {
+                    return $this->redirect(["blogs-update", 'id' => $id]);
+                } else {
+                    Yii::$app->session->removeAllFlashes();
+                    return $this->redirect(["blogs", 'id' => $id]);
+                }
+            } else {
+            	Yii::$app->session->setFlash('save', false);
+            }
+        }
+
+        if ($model) {
+		    return $this->render('blogs-update', compact('model'));
+        } else {
+            return $this->redirect('blogs');
+        }
+    }
+
 }

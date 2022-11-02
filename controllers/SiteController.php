@@ -3,15 +3,22 @@
 namespace app\controllers;
 
 use Yii;
-use yii\filters\AccessControl;
-use yii\web\Controller;
+use app\models\Blog;
+use app\models\Like;
+use app\models\User;
 use yii\web\Response;
-use yii\filters\VerbFilter;
+use app\models\Comment;
+use yii\web\Controller;
 use app\models\LoginForm;
+use yii\web\UploadedFile;
 use app\models\ContactForm;
-use app\models\search\UserSearch;
+use yii\filters\VerbFilter;
 use app\functions\MyFunction;
+use yii\filters\AccessControl;
 use app\models\RegistrationForm;
+use app\models\search\BlogSearch;
+use app\models\search\CommentSearch;
+use app\models\search\UserSearch;
 
 class SiteController extends Controller
 {
@@ -64,6 +71,7 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        return $this->redirect('/blog/posts');
         return $this->render('index');
     }
 
@@ -148,5 +156,22 @@ class SiteController extends Controller
     public function actionSay($message = 'Привет')
     {
         return $this->render('say', ['message' => $message]);
+    }
+
+    public function actionCabinet() {
+
+        $user = User::findOne(Yii::$app->user->id);
+        $user->birthday = Yii::$app->formatter->asDate($user->birthday, 'dd.MM.yyyy');
+        if ($user->load(Yii::$app->request->post())) {
+            $user->file = UploadedFile::getInstance($user, 'file');
+            if ($user->validate()) {
+                $user->upload();
+                $user->birthday = Yii::$app->formatter->asDate($user->birthday, 'yyyy-MM-dd');
+                $user->save(false);
+                return $this->refresh();
+            }
+        }
+        
+        return $this->render('/site/cabinet',compact('user'));
     }
 }

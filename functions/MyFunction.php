@@ -2,9 +2,12 @@
 
 namespace app\functions;
 
-use yii\web\Request;
-use app\models\Log;
 use Yii;
+use app\models\Log;
+use app\models\Blog;
+use app\models\Like;
+use yii\web\Request;
+use app\models\Comment;
 
 
 class MyFunction {

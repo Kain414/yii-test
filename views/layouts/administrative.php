@@ -41,6 +41,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => '@w
         'items' => [
             ['label' => 'Пользователи', 'url' => ['/admin/admin/users']],
             ['label' => 'Журнал авторизаций', 'url' => ['/admin/admin/log-search']],
+            ['label' => 'Посты', 'url' => ['/admin/admin/blogs']],
         ]
     ]);
     NavBar::end();

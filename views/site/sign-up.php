@@ -28,11 +28,11 @@ $this->title='Регистрация';
                 <?= $form->field($model, 'gender')->dropDownList(User::GENDERS) ?>
             </div>
             <div class="col-8">
-                <?= $form->field($model, 'birthday')->widget(DatePicker::classname(), [
+                <?= $form->field($model, 'birthday')->widget(DatePicker::class, [
                         'options' => ['placeholder' => 'Enter birth date ...'],
                         'pluginOptions' => [
                             'autoclose' => true,
-                            'format' => 'dd/mm/yyyy'
+                            'format' => 'dd.mm.yyyy'
                         ]
                     ])?>
             </div>

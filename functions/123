@@ -1,0 +1,103 @@
+if ($like != null) {
+    if ($like->status == 1) { ?>
+        <div class="image-hover" style="margin-right: 5px;"><?=Html::button(Html::img('/images/heart1.png',['style' => 'width: 24px']) 
+        ,['class' => 'btn btn-outline-secondary w-100 h-100 like-set', 'id' => 'like' . $post->id, 'data-id' => $post->id])?></div>
+
+        <div class="image-hover" style="margin-right: 5px;"><?=Html::button(Html::img('/images/heart4.png',['class' => 'like-off', 'style' => 'width: 24px']) 
+        . Html::img('/images/heart2.png',['class' => 'like-on', 'style' => 'width: 24px']),['class' => 'btn btn-outline-secondary w-100 h-100 like-set', 'id' => 'dislike' . $post->id * -1, 'data-id' => ($post->id * -1)])?></div>
+    <?php } else { ?>
+    <div class="image-hover" style="margin-right: 5px;"><?=Html::button(Html::img('/images/heart3.png',['class' => 'like-off', 'style' => 'width: 24px']) 
+    . Html::img('/images/heart1.png',['class' => 'like-on', 'style' => 'width: 24px']),['class' => 'btn btn-outline-secondary w-100 h-100 like-set', 'id' => 'like' . $post->id, 'data-id' => $post->id])?></div>
+
+    <div class="image-hover" style="margin-right: 5px;"><?=Html::button(Html::img('/images/heart2.png',['style' => 'width: 24px']) 
+    ,['class' => 'btn btn-outline-secondary w-100 h-100 like-set', 'id' => 'dislike' . $post->id * -1, 'data-id' => ($post->id * -1)])?></div>
+    <?php }
+} else { ?>
+    <div class="image-hover" style="margin-right: 5px;"><?=Html::button(Html::img('/images/heart3.png',['class' => 'like-off', 'style' => 'width: 24px']) 
+    . Html::img('/images/heart1.png',['class' => 'like-on', 'style' => 'width: 24px']),['class' => 'btn btn-outline-secondary w-100 h-100 like-set', 'id' => 'like' . $post->id, 'data-id' => $post->id])?></div>
+
+    <div class="image-hover" style="margin-right: 5px;"><?=Html::button(Html::img('/images/heart4.png',['class' => 'like-off', 'style' => 'width: 24px']) 
+    . Html::img('/images/heart2.png',['class' => 'like-on', 'style' => 'width: 24px']),['class' => 'btn btn-outline-secondary w-100 h-100 like-set', 'id' => 'dislike' . $post->id * -1, 'data-id' => ($post->id * -1)])?></div>
+<?php } ?>
+
+<!--Для my-posts, для вывода инфы о постах -->
+<?=
+GridView::widget([
+    'dataProvider' => $dataProvider,
+    'filterModel' => $searchModel,
+    'columns' => [
+        [
+            'class' => 'yii\grid\CheckboxColumn',
+            'name' => 'delete_ids[]',
+            'checkboxOptions' => function ($model) {
+                return ['form'=>'delete-blog-form','value' => $model->id];
+            }
+        ],
+        'id:integer',
+        [
+            'attribute' => 'title',
+            'format' => 'html',
+            'value' => function (Blog $model) {
+                return Html::tag('div', $model->title, ['class' => '', 'style' => 'width: 230px;']);
+            },
+            'headerOptions' => ['style' => 'width: 300px;'],
+        ],
+        [
+            'attribute' => 'body',
+            'format' => 'html',
+            'value' => function (Blog $model) {
+                return Html::tag('div', $model->body, ['class' => 'blog-body']);
+            }
+        ],
+        [
+            'attribute' => 'image',
+            'format' => 'html',
+            'value' => function ($model) {
+                return Html::img('/uploads/' . $model->image, ['style' => 'width: 128px; height: 128px; object-fit: cover;', 'class' => 'img-thumbnail rounded']);
+            },
+        ],
+        [
+            'attribute' => 'author',
+            'format' => 'html',
+            'value' => function (Blog $model) {
+                return Html::tag('div', $model->authorModel->username, ['class' => '', 'style' => 'width: 66px;']);
+            }
+        ],
+        'likes:integer',
+        'dislikes:integer',
+        'views:integer',
+        [
+            'attribute' => 'open',
+            'value' => function ($model) {
+                return Blog::OPENS[$model->open] ?? 'Неизвестный';
+            },
+        ],
+        [
+            'attribute' => 'status',
+            'value' => function ($model) {
+                return Blog::STATUSES[$model->status] ?? 'Неизвестный';
+            },
+        ],
+        [
+            'attribute' => 'info',
+            'format' => 'text',
+        ],
+        [
+            'class' => 'yii\grid\ActionColumn',
+            'template' => '{update} {delete}',
+            
+            'urlCreator' => function ($action, $model, $key, $index) {
+                if ($action === 'update') {
+                        $url = Url::to(['blogs-update', 'id' => $model->id]);
+                        return $url;
+                }
+
+                if ($action === 'delete') {
+                    $url = Url::to(['blogs-delete', 'id' => $model->id]);
+                        return $url;
+                }
+            }
+        ],
+    ],
+]);
+?>

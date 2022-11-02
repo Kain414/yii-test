@@ -2,12 +2,14 @@
 
 namespace app\models;
 
-use yii\db\ActiveRecord;
 use Yii;
+use yii\db\ActiveRecord;
+use yii\web\UploadedFile;
 
 class User extends ActiveRecord  implements \yii\web\IdentityInterface
 {
     public $authKey;
+    public $file = 123;
 
     //--------------------------------------------
     public const STATUS_ADMIN = 1;
@@ -37,18 +39,22 @@ class User extends ActiveRecord  implements \yii\web\IdentityInterface
             'email' => 'Email',
             'status' => 'Статус',
             'password' => 'Пароль',
+            'file' => 'Аватарка',
         ];
     }
 
     public function rules()
     {
         return [
-            [['username', 'email', 'status', 'password'], 'required'],
+            [['username', 'email', 'status', 'password','first_name','last_name'], 'required'],
             [['username', 'email'], 'unique'],
-            [['username', 'password'], 'string'],
+            [['username', 'password','first_name','last_name'], 'string'],
             ['email', 'email'],
-            ['status', 'integer'],
+            [['status', 'gender'], 'integer'],
+            ['birthday','date','format' => 'dd.mm.yyyy'],
             ['status', 'in', 'range' => self::STATUSES_NUM, 'message' => 'Вы инвалид'],
+            [['file'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, webp'],
+            ['avatar', 'safe'],
         ];
     }
 
@@ -121,5 +127,20 @@ class User extends ActiveRecord  implements \yii\web\IdentityInterface
     public function validatePassword($password)
     {
         return Yii::$app->security->validatePassword($password, $this->password);
+    }
+
+    public function upload()
+    {
+        if ($this->file instanceof UploadedFile) {
+            $filename = md5(time()) . '.' . $this->file->extension;
+            $this->file->saveAs('uploads/' . $filename, false);
+            if (!is_dir('uploads/' . $this->avatar) && file_exists('uploads/' . $this->avatar)) {
+                unlink('uploads/' . $this->avatar);
+            }
+            $this->avatar = $filename;
+            return true;
+        } else {
+            return false;
+        }
     }
 }

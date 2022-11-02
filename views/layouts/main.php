@@ -25,7 +25,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => '@w
 <head>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.2.0/css/all.css">
 </head>
 <body class="d-flex flex-column h-100">
 <?php $this->beginBody() ?>
@@ -61,6 +61,9 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => '@w
         if (Yii::$app->user->identity->status == 1) {
             $items = array_merge($items,[['label' => 'Админка', 'url' => ['/admin/admin']]]);
         }
+        if (Yii::$app->user->identity->status == 3) {
+            $items = array_merge($items,[['label' => 'Модерация', 'url' => ['/moderator/index']]]);
+        }
         
         // $cabinet =
         //     '<li class="nav-item" style="float:right">'
@@ -76,11 +79,26 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => '@w
     ]);
     
     ?>
-    <div class="row" style="">
-    <li class="nav-item" style="float:right"> 
-    <?= Html::a(Html::button('Кабинет', ['class' => 'btn btn-secondary']), '/site/cabinet') ?>
+    <?php 
+    // var_dump(Yii::$app->user->identity);
+    // die;
+    if (!Yii::$app->user->isGuest) {
+    ?>
+    <div class="text-right" style="display: block; flex: 1;">
+    <li class="nav-item d-flex" style="float:right;"> 
+    <?= Html::a(Html::button('Кабинет', ['class' => 'btn btn-secondary me-1']), '/site/cabinet') ?>
+    <?php if (file_exists('uploads/' . Yii::$app->user->identity->avatar) && !is_dir('uploads/' . Yii::$app->user->identity->avatar)) { ?>
+    <div>
+        <?= Html::img('/uploads/' . Yii::$app->user->identity->avatar,['class' => 'rounded-circle shadow', 'style' => 'width: 38px; height: 38px; object-fit: cover;']) ?>
+    </div>
+    <?php } else { ?>
+    <div>
+    <?= Html::img('/uploads/no_avatar.png',['class' => 'rounded-circle shadow', 'style' => 'width: 38px; height: 38px; object-fit: cover;']) ?>
+    </div>
+    <?php } ?>
     </li>
     </div>
+    <?php } ?>
 
     <?php NavBar::end();?>
 
@@ -89,9 +107,11 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => '@w
 <main id="main" class="flex-shrink-0" role="main">
     <div class="container">
         <?php if (!empty($this->params['breadcrumbs'])): ?>
-            <?= Breadcrumbs::widget(['links' => $this->params['breadcrumbs']]) ?>
+            <div class="rounded ps-3 pt-3 pb-1 mt-2 mb-2 shadow">
+            <h6><?= Breadcrumbs::widget(['links' => $this->params['breadcrumbs']]) ?></h6>
+            </div>
         <?php endif ?>
-        <?= Alert::widget() ?>
+        <!-- <?= Alert::widget() ?> -->
         <?= $content ?>
     </div>
 </main>
